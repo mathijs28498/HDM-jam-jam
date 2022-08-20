@@ -11,14 +11,8 @@ const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
 const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
 const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
 
-// #[derive(Component)]
-// struct Head;
-
-// #[derive(Component)]
-// struct Body;
-
-// #[derive(Component)]
-// struct Legs;
+#[derive(Component)]
+struct SpawnButton;
 
 // The type of button to swap an element
 // The boolean says which button it is
@@ -37,7 +31,7 @@ enum PartPosition {
     LEGS,
 }
 
-#[derive(Component, Clone)]
+#[derive(Component, Clone, Debug)]
 struct PartType {
     color: Color,
 }
@@ -46,6 +40,9 @@ struct PartType {
 struct PartTypeList {
     part_type_list: Vec<PartType>,
 }
+
+#[derive(Component)]
+struct AllyCreature;
 
 fn main() {
     // Window size: 1280x720
@@ -64,11 +61,107 @@ fn main() {
             ],
         })
         .add_startup_system(setup)
-        .add_system(button_system)
+        .add_system(swap_button_system)
+        .add_system(spawn_button_system)
+        .add_system(move_ally_creature_system)
         .run();
 }
 
-fn button_system(
+fn move_ally_creature_system(
+    mut creature_query: Query<&mut Transform, With<AllyCreature>>
+) {
+    for mut transform in creature_query.iter_mut() {
+        transform.translation.x -= 1.;
+    }
+}
+
+fn spawn_button_system(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut interaction_query: Query<
+        (&Interaction, &mut UiColor),
+        (Changed<Interaction>, With<Button>, With<SpawnButton>),
+    >,
+    mut part_query: Query<(&PartType, &PartPosition)>,
+) {
+    for (interaction, mut color) in &mut interaction_query {
+        match *interaction {
+            Interaction::Clicked => {
+                let mut head_part_type = None;
+                let mut body_part_type = None;
+                let mut legs_part_type = None;
+                for (mut part_type, part_position) in part_query.iter_mut() {
+                    match part_position {
+                        PartPosition::HEAD => {
+                            head_part_type = Some(part_type.clone());
+                        }
+                        PartPosition::BODY => {
+                            body_part_type = Some(part_type.clone());
+                        }
+                        PartPosition::LEGS => {
+                            legs_part_type = Some(part_type.clone());
+                        }
+                    }
+                }
+
+                // TODO: Spawn new monster based on types                    
+                commands.spawn_bundle(SpriteBundle {
+                    texture: asset_server.load("images/white.png"),
+                    transform: Transform {
+                        translation: Vec3::new(250., -60., 2.),
+                        scale: Vec3::new(40., 40., 1.),
+                        ..default()
+                    },
+                    sprite: Sprite {
+                        color: head_part_type.unwrap().color,
+                        ..default()
+                    },
+                    ..default()
+                })
+                .insert(AllyCreature);    
+
+                commands.spawn_bundle(SpriteBundle {
+                    texture: asset_server.load("images/white.png"),
+                    transform: Transform {
+                        translation: Vec3::new(250., -100., 2.),
+                        scale: Vec3::new(40., 40., 1.),
+                        ..default()
+                    },
+                    sprite: Sprite {
+                        color: body_part_type.unwrap().color,
+                        ..default()
+                    },
+                    ..default()
+                })
+                .insert(AllyCreature);   
+
+                commands.spawn_bundle(SpriteBundle {
+                    texture: asset_server.load("images/white.png"),
+                    transform: Transform {
+                        translation: Vec3::new(250., -140., 2.),
+                        scale: Vec3::new(40., 40., 1.),
+                        ..default()
+                    },
+                    sprite: Sprite {
+                        color: legs_part_type.unwrap().color,
+                        ..default()
+                    },
+                    ..default()
+                })
+                .insert(AllyCreature);
+
+            }
+            Interaction::Hovered => {
+                *color = HOVERED_BUTTON.into();
+            }
+            Interaction::None => {
+                *color = NORMAL_BUTTON.into();
+            }
+        }
+    }
+}
+
+fn swap_button_system(
     mut interaction_query: Query<
         (&Interaction, &mut UiColor, &SwapButtonPosition),
         (Changed<Interaction>, With<Button>),
@@ -76,7 +169,6 @@ fn button_system(
     part_type_list: Res<PartTypeList>,
     asset_server: Res<AssetServer>,
     mut part_query: Query<(&mut PartType, &mut Sprite, &PartPosition)>,
-    // mut legs_part_query: Query<(&PartType, &mut Sprite), With<Legs>>,
 ) {
     for (interaction, mut color, swap_button_type) in &mut interaction_query {
         match *interaction {
@@ -85,7 +177,7 @@ fn button_system(
                 match swap_button_type {
                     SwapButtonPosition::HEAD(is_right) => {
                         for (mut part_type, mut sprite, part_position) in part_query.iter_mut() {
-                            match part_position{
+                            match part_position {
                                 PartPosition::HEAD => {}
                                 _ => continue,
                             }
@@ -98,7 +190,7 @@ fn button_system(
                             let new_index = (old_index as i32 + addition)
                                 .rem_euclid(part_type_list.part_type_list.len() as i32)
                                 as usize;
-    
+
                             *part_type = part_type_list.part_type_list[new_index].clone();
                             sprite.color = part_type.color;
 
@@ -107,7 +199,7 @@ fn button_system(
                     }
                     SwapButtonPosition::BODY(is_right) => {
                         for (mut part_type, mut sprite, part_position) in part_query.iter_mut() {
-                            match part_position{
+                            match part_position {
                                 PartPosition::BODY => {}
                                 _ => continue,
                             }
@@ -120,7 +212,7 @@ fn button_system(
                             let new_index = (old_index as i32 + addition)
                                 .rem_euclid(part_type_list.part_type_list.len() as i32)
                                 as usize;
-    
+
                             *part_type = part_type_list.part_type_list[new_index].clone();
                             sprite.color = part_type.color;
 
@@ -129,7 +221,7 @@ fn button_system(
                     }
                     SwapButtonPosition::LEGS(is_right) => {
                         for (mut part_type, mut sprite, part_position) in part_query.iter_mut() {
-                            match part_position{
+                            match part_position {
                                 PartPosition::LEGS => {}
                                 _ => continue,
                             }
@@ -142,7 +234,7 @@ fn button_system(
                             let new_index = (old_index as i32 + addition)
                                 .rem_euclid(part_type_list.part_type_list.len() as i32)
                                 as usize;
-    
+
                             *part_type = part_type_list.part_type_list[new_index].clone();
                             sprite.color = part_type.color;
 
@@ -202,6 +294,36 @@ fn setup(
     let head_part_type = part_type_list.part_type_list[0].clone();
     let body_part_type = part_type_list.part_type_list[1].clone();
     let legs_part_type = part_type_list.part_type_list[2].clone();
+
+    commands
+        .spawn_bundle(ButtonBundle {
+            style: Style {
+                size: Size::new(Val::Px(200.), Val::Px(40.)),
+                position_type: PositionType::Absolute,
+                position: UiRect {
+                    right: Val::Px(60.),
+                    bottom: Val::Px(100.),
+                    ..default()
+                },
+                // Make text align in center
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                ..default()
+            },
+            color: NORMAL_BUTTON.into(),
+            ..default()
+        })
+        .with_children(|parent| {
+            parent.spawn_bundle(TextBundle::from_section(
+                "Spawn",
+                TextStyle {
+                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                    font_size: 40.0,
+                    color: Color::rgb(0.9, 0.9, 0.9),
+                },
+            ));
+        })
+        .insert(SpawnButton);
 
     commands
         .spawn_bundle(SpriteBundle {
