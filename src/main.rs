@@ -2,17 +2,19 @@ mod camera;
 mod combat;
 mod creation;
 
-use bevy::prelude::*;
+use bevy::{prelude::*, render::texture::ImageSettings};
+use bevy_proto::ProtoPlugin;
 use camera::{
     setup_camera_with_ui,
-    systems::{move_camera_system, interaction_camera_move_box_system},
+    systems::{interaction_camera_move_box_system, move_camera_system},
 };
 use combat::systems::move_ally_creature_system;
 use creation::{
     components::{PartPosition, PartType, PartTypeList, SpawnButton},
+    setup_creation_ui,
     systems::{
         interaction_spawn_button_system, interaction_swap_button_system, spawn_swap_buttons,
-    }, setup_creation_ui,
+    },
 };
 
 const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
@@ -21,11 +23,14 @@ const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
 
 pub const WIDTH: u32 = 1280;
 pub const HEIGHT: u32 = 720;
+pub const PIXEL: f32 = 16.;
 
 fn main() {
     // Window size: 1280x720
     App::new()
         .add_plugins(DefaultPlugins)
+        .add_plugin(ProtoPlugin::default())
+        .insert_resource(ImageSettings::default_nearest())
         .insert_resource(PartTypeList {
             part_type_list: vec![
                 PartType { color: Color::RED },
@@ -111,8 +116,6 @@ fn setup(
     //     ..default()
     // });
 
-    
-
     // commands.spawn_bundle(SpriteBundle {
     //     texture: asset_server.load("images/white.png"),
     //     transform: Transform {
@@ -139,7 +142,6 @@ fn setup(
     //     }
     //     ..default()
     // });
-
 
     // commands
     //     .spawn_bundle(SpriteBundle {
