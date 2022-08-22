@@ -7,7 +7,7 @@ use super::{
     spawn_button,
 };
 
-pub(crate) fn spawn_button_system(
+pub(crate) fn interaction_spawn_button_system(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut interaction_query: Query<
@@ -96,7 +96,7 @@ pub(crate) fn spawn_button_system(
     }
 }
 
-pub(crate) fn swap_button_system(
+pub(crate) fn interaction_swap_button_system(
     mut interaction_query: Query<
         (&Interaction, &mut UiColor, &SwapButtonPosition),
         (Changed<Interaction>, With<Button>),
