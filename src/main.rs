@@ -9,9 +9,9 @@ use camera::{
 };
 use combat::systems::move_ally_creature_system;
 use creation::{
-    components::{PartPosition, PartType, PartTypeList, SpawnButton},
+    components::{PartType, PartTypeList},
     systems::{
-        interaction_spawn_button_system, interaction_swap_button_system, spawn_swap_buttons,
+        interaction_spawn_button_system, interaction_swap_button_system,
     }, setup_creation_ui,
 };
 

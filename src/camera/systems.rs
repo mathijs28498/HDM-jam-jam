@@ -1,6 +1,4 @@
-use bevy::{input::mouse::MouseMotion, prelude::*};
-
-use crate::{HEIGHT, WIDTH};
+use bevy::{prelude::*};
 
 use super::components::{CameraMoveBoxDirection, CameraMovementConfig};
 

@@ -4,7 +4,6 @@ use crate::{combat::components::AllyCreature, HOVERED_BUTTON, NORMAL_BUTTON, PRE
 
 use super::{
     components::{PartPosition, PartType, PartTypeList, SpawnButton, SwapButtonPosition},
-    spawn_button,
 };
 
 pub(crate) fn interaction_spawn_button_system(
@@ -185,78 +184,4 @@ pub(crate) fn interaction_swap_button_system(
             }
         }
     }
-}
-
-pub(crate) fn spawn_swap_buttons(commands: &mut Commands, asset_server: &Res<AssetServer>) {
-    spawn_button(
-        commands,
-        asset_server,
-        UiRect {
-            right: Val::Px(240.),
-            top: Val::Px(220.),
-            ..default()
-        },
-        "<",
-        SwapButtonPosition::Head(false),
-    );
-
-    spawn_button(
-        commands,
-        asset_server,
-        UiRect {
-            right: Val::Px(40.),
-            top: Val::Px(220.),
-            ..default()
-        },
-        ">",
-        SwapButtonPosition::Head(true),
-    );
-
-    spawn_button(
-        commands,
-        asset_server,
-        UiRect {
-            right: Val::Px(240.),
-            top: Val::Px(340.),
-            ..default()
-        },
-        "<",
-        SwapButtonPosition::Body(false),
-    );
-
-    spawn_button(
-        commands,
-        asset_server,
-        UiRect {
-            right: Val::Px(40.),
-            top: Val::Px(340.),
-            ..default()
-        },
-        ">",
-        SwapButtonPosition::Body(true),
-    );
-
-    spawn_button(
-        commands,
-        asset_server,
-        UiRect {
-            right: Val::Px(240.),
-            top: Val::Px(460.),
-            ..default()
-        },
-        "<",
-        SwapButtonPosition::Legs(false),
-    );
-
-    spawn_button(
-        commands,
-        asset_server,
-        UiRect {
-            right: Val::Px(40.),
-            top: Val::Px(460.),
-            ..default()
-        },
-        ">",
-        SwapButtonPosition::Legs(true),
-    );
 }
