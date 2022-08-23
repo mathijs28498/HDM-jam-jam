@@ -12,7 +12,7 @@ pub(crate) fn setup_camera_with_ui(mut commands: Commands) {
     commands.insert_resource(CameraMovementConfig {
         speed: 40.,
         min_x: -500.,
-        max_x: 500.
+        max_x: 500.,
     });
 
     let camera_move_width_element_width = 200.;

@@ -8,7 +8,7 @@ use camera::{
     setup_camera_with_ui,
     systems::{interaction_camera_move_box_system, move_camera_system},
 };
-use combat::systems::move_ally_creature_system;
+use combat::systems::{move_ally_creature_system, move_enemy_system, spawn_enemy_wave};
 use creation::{
     components::{PartPosition, PartType, PartTypeList, SpawnButton},
     setup_creation_ui,
@@ -46,9 +46,11 @@ fn main() {
         .add_startup_system(setup)
         .add_startup_system(setup_camera_with_ui)
         .add_startup_system(setup_creation_ui)
+        .add_startup_system(spawn_enemy_wave)
         .add_system(interaction_swap_button_system)
         .add_system(interaction_spawn_button_system)
         .add_system(move_ally_creature_system)
+        .add_system(move_enemy_system)
         .add_system(move_camera_system)
         .add_system(interaction_camera_move_box_system)
         .run();
