@@ -60,7 +60,7 @@ pub(crate) fn setup_creation_ui(mut commands: Commands, asset_server: Res<AssetS
             // Legs swap node
             spawn_monster_segment_node(
                 parent,
-                child_bundle.clone(),
+                child_bundle,
                 Color::rgb(0., 1., 1.).into(),
                 &font,
             );

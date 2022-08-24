@@ -1,5 +1,5 @@
 [hooks]
-pre-commit = "cargo check --locked && cargo clippy --locked -- -D warnings && cargo fmt --all -- --check"
+pre-commit = "cargo check --locked"
 
 [logging]
 verbose = true
