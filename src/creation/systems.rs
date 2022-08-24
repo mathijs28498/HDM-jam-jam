@@ -1,6 +1,7 @@
 use bevy::prelude::*;
+use bevy_proto::prelude::ProtoData;
 
-use crate::{combat::components::AllyCreature, HOVERED_BUTTON, NORMAL_BUTTON, PRESSED_BUTTON};
+use crate::{combat::components::Monster, HOVERED_BUTTON, NORMAL_BUTTON, PIXEL, PRESSED_BUTTON};
 
 use super::{
     components::{PartPosition, PartType, PartTypeList, SpawnButton, SwapButtonPosition},
@@ -8,90 +9,65 @@ use super::{
 
 pub(crate) fn interaction_spawn_button_system(
     mut commands: Commands,
+    keys: Res<Input<KeyCode>>,
     asset_server: Res<AssetServer>,
-    mut interaction_query: Query<
-        (&Interaction, &mut UiColor),
-        (Changed<Interaction>, With<Button>, With<SpawnButton>),
-    >,
-    mut part_query: Query<(&PartType, &PartPosition)>,
+    prototypes: Res<ProtoData>,
 ) {
-    for (interaction, mut color) in &mut interaction_query {
-        match *interaction {
-            Interaction::Clicked => {
-                let mut head_part_type = None;
-                let mut body_part_type = None;
-                let mut legs_part_type = None;
+    if keys.just_pressed(KeyCode::Space) {
+        let monster = prototypes
+            .get_prototype("Monster")
+            .expect("Could not get Monster prototype");
 
-                for (part_type, part_position) in part_query.iter_mut() {
-                    match part_position {
-                        PartPosition::Head => {
-                            head_part_type = Some(part_type.clone());
-                        }
-                        PartPosition::Body => {
-                            body_part_type = Some(part_type.clone());
-                        }
-                        PartPosition::Legs => {
-                            legs_part_type = Some(part_type.clone());
-                        }
-                    }
-                }
-
-                // TODO: Spawn new monster based on types
-                commands
-                    .spawn_bundle(SpriteBundle {
-                        texture: asset_server.load("images/white.png"),
-                        transform: Transform {
-                            translation: Vec3::new(250., -60., 2.),
-                            scale: Vec3::new(40., 40., 1.),
-                            ..default()
-                        },
-                        sprite: Sprite {
-                            color: head_part_type.unwrap().color,
-                            ..default()
-                        },
+        monster
+            .spawn(&mut commands, &prototypes, &asset_server)
+            .insert_bundle(SpatialBundle {
+                transform: Transform {
+                    translation: Vec3::new(0., 0., 1.),
+                    scale: Vec3::new(4., 4., 1.),
+                    ..default()
+                },
+                ..Default::default()
+            })
+            .with_children(|parent| {
+                parent.spawn_bundle(SpriteBundle {
+                    texture: asset_server.load("images/sprite.png"),
+                    transform: Transform {
+                        translation: Vec3::new(0., 0., 1.),
                         ..default()
-                    })
-                    .insert(AllyCreature);
-
-                commands
-                    .spawn_bundle(SpriteBundle {
-                        texture: asset_server.load("images/white.png"),
-                        transform: Transform {
-                            translation: Vec3::new(250., -100., 2.),
-                            scale: Vec3::new(40., 40., 1.),
-                            ..default()
-                        },
-                        sprite: Sprite {
-                            color: body_part_type.unwrap().color,
-                            ..default()
-                        },
+                    },
+                    sprite: Sprite {
+                        color: Color::RED,
                         ..default()
-                    })
-                    .insert(AllyCreature);
+                    },
+                    ..default()
+                });
 
-                commands
-                    .spawn_bundle(SpriteBundle {
-                        texture: asset_server.load("images/white.png"),
-                        transform: Transform {
-                            translation: Vec3::new(250., -140., 2.),
-                            scale: Vec3::new(40., 40., 1.),
-                            ..default()
-                        },
-                        sprite: Sprite {
-                            color: legs_part_type.unwrap().color,
-                            ..default()
-                        },
+                parent.spawn_bundle(SpriteBundle {
+                    texture: asset_server.load("images/sprite.png"),
+                    transform: Transform {
+                        translation: Vec3::new(0., -PIXEL, 1.),
                         ..default()
-                    })
-                    .insert(AllyCreature);
-            }
-            Interaction::Hovered => {
-                *color = HOVERED_BUTTON.into();
-            }
-            Interaction::None => {
-                *color = NORMAL_BUTTON.into();
-            }
-        }
+                    },
+                    sprite: Sprite {
+                        color: Color::GREEN,
+                        ..default()
+                    },
+                    ..default()
+                });
+
+                parent.spawn_bundle(SpriteBundle {
+                    texture: asset_server.load("images/sprite.png"),
+                    transform: Transform {
+                        translation: Vec3::new(0., -(PIXEL * 2.), 1.),
+                        ..default()
+                    },
+                    sprite: Sprite {
+                        color: Color::BLUE,
+                        ..default()
+                    },
+                    ..default()
+                });
+            });
     }
 }
 

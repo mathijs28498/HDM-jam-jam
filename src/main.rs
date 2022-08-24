@@ -7,12 +7,13 @@ mod camera;
 mod combat;
 mod creation;
 
-use bevy::prelude::*;
+use bevy::{prelude::*, render::texture::ImageSettings};
+use bevy_proto::ProtoPlugin;
 use camera::{
     setup_camera_with_ui,
-    systems::{move_camera_system, interaction_camera_move_box_system},
+    systems::{interaction_camera_move_box_system, move_camera_system},
 };
-use combat::systems::move_ally_creature_system;
+use combat::systems::{move_ally_creature_system, move_enemy_system, spawn_enemy_wave};
 use creation::{
     components::{PartType, PartTypeList},
     systems::{
@@ -26,11 +27,14 @@ const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
 
 pub const WIDTH: u32 = 1280;
 pub const HEIGHT: u32 = 720;
+pub const PIXEL: f32 = 16.;
 
 fn main() {
     // Window size: 1280x720
     App::new()
         .add_plugins(DefaultPlugins)
+        .add_plugin(ProtoPlugin::default())
+        .insert_resource(ImageSettings::default_nearest())
         .insert_resource(PartTypeList {
             part_type_list: vec![
                 PartType { color: Color::RED },
@@ -46,9 +50,11 @@ fn main() {
         .add_startup_system(setup)
         .add_startup_system(setup_camera_with_ui)
         .add_startup_system(setup_creation_ui)
+        .add_startup_system(spawn_enemy_wave)
         .add_system(interaction_swap_button_system)
         .add_system(interaction_spawn_button_system)
         .add_system(move_ally_creature_system)
+        .add_system(move_enemy_system)
         .add_system(move_camera_system)
         .add_system(interaction_camera_move_box_system)
         .run();
@@ -116,8 +122,6 @@ fn setup(
     //     ..default()
     // });
 
-    
-
     // commands.spawn_bundle(SpriteBundle {
     //     texture: asset_server.load("images/white.png"),
     //     transform: Transform {
@@ -144,7 +148,6 @@ fn setup(
     //     }
     //     ..default()
     // });
-
 
     // commands
     //     .spawn_bundle(SpriteBundle {
