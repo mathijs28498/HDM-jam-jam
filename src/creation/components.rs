@@ -21,6 +21,22 @@ pub(crate) enum PartPosition {
 }
 
 #[derive(Component, Clone, Debug)]
+pub enum Element {
+    Mud, Water, Fire, Electric
+}
+impl From<usize> for Element {
+    fn from(t: usize) -> Self {
+        match t {
+            0 => Self::Mud,
+            1 => Self::Water,
+            2 => Self::Fire,
+            3 => Self::Electric,
+            _ => unreachable!(),
+        }
+    }
+}
+
+#[derive(Component, Clone, Debug)]
 pub(crate) struct PartType {
     pub(crate) color: Color,
 }

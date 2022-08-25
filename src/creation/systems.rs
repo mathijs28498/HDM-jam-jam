@@ -1,10 +1,13 @@
 use bevy::prelude::*;
 use bevy_proto::prelude::ProtoData;
 
-use crate::{combat::components::Monster, HOVERED_BUTTON, NORMAL_BUTTON, PIXEL, PRESSED_BUTTON};
+use crate::{
+    combat::components::Monster, BaseStorage, GameAssets, HOVERED_BUTTON, NORMAL_BUTTON, PIXEL,
+    PRESSED_BUTTON,
+};
 
-use super::{
-    components::{PartPosition, PartType, PartTypeList, SpawnButton, SwapButtonPosition},
+use super::components::{
+    Element, PartPosition, PartType, PartTypeList, SpawnButton, SwapButtonPosition,
 };
 
 pub(crate) fn interaction_spawn_button_system(
@@ -12,12 +15,15 @@ pub(crate) fn interaction_spawn_button_system(
     keys: Res<Input<KeyCode>>,
     asset_server: Res<AssetServer>,
     prototypes: Res<ProtoData>,
+    mut bs: ResMut<BaseStorage>,
+    assets: Res<GameAssets>,
 ) {
     if keys.just_pressed(KeyCode::Space) {
         let monster = prototypes
             .get_prototype("Monster")
             .expect("Could not get Monster prototype");
 
+        if bs.can_consume_escrow() {
         monster
             .spawn(&mut commands, &prototypes, &asset_server)
             .insert_bundle(SpatialBundle {
@@ -29,45 +35,12 @@ pub(crate) fn interaction_spawn_button_system(
                 ..Default::default()
             })
             .with_children(|parent| {
-                parent.spawn_bundle(SpriteBundle {
-                    texture: asset_server.load("images/sprite.png"),
-                    transform: Transform {
-                        translation: Vec3::new(0., 0., 1.),
-                        ..default()
-                    },
-                    sprite: Sprite {
-                        color: Color::RED,
-                        ..default()
-                    },
-                    ..default()
-                });
-
-                parent.spawn_bundle(SpriteBundle {
-                    texture: asset_server.load("images/sprite.png"),
-                    transform: Transform {
-                        translation: Vec3::new(0., -PIXEL, 1.),
-                        ..default()
-                    },
-                    sprite: Sprite {
-                        color: Color::GREEN,
-                        ..default()
-                    },
-                    ..default()
-                });
-
-                parent.spawn_bundle(SpriteBundle {
-                    texture: asset_server.load("images/sprite.png"),
-                    transform: Transform {
-                        translation: Vec3::new(0., -(PIXEL * 2.), 1.),
-                        ..default()
-                    },
-                    sprite: Sprite {
-                        color: Color::BLUE,
-                        ..default()
-                    },
-                    ..default()
-                });
+                parent.spawn_bundle(assets.spawn_elem(bs.head.0,0.));
+                parent.spawn_bundle(assets.spawn_elem(bs.body.0,1.));
+                parent.spawn_bundle(assets.spawn_elem(bs.legs.0,2.));
             });
+            bs.consume_escrow();
+        }
     }
 }
 
@@ -160,4 +133,28 @@ pub(crate) fn interaction_swap_button_system(
             }
         }
     }
+}
+
+pub(crate) fn work_shop(
+    parts: Query<(&Children, &PartPosition)>,
+    buttons: Query<&Interaction, Changed<Interaction>>,
+    assets: Res<GameAssets>,
+    mut colors: Query<&mut UiColor>,
+    mut bs: ResMut<BaseStorage>,
+){
+    for (children, part) in parts.iter() {
+        let mut escrow = match part {
+            PartPosition::Head => &mut bs.head.0,
+            PartPosition::Body => &mut bs.body.0,
+            PartPosition::Legs => &mut bs.legs.0,
+        };
+        let mut color = colors.get_mut(children[1]).unwrap();
+        color.0 = assets.elem_sprite_material(*escrow).color;
+        if let Some(change) = children.iter()
+            .position(|&x| buttons.get(x) == Ok(&Interaction::Clicked)){
+                *escrow += change+3;
+                *escrow %= 4;
+            }
+    }
+
 }

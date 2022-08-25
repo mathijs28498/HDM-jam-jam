@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 // Used to determine which way to move the camera when hovering the sides with your mouse
 #[derive(Component, Debug)]
-pub(crate) enum CameraMoveBoxDirection {
+pub enum CameraMoveBoxDirection {
     Left(bool),
     Right(bool),
 }

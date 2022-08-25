@@ -16,3 +16,11 @@ pub(crate) struct Monster;
 
 #[derive(Clone, Serialize, Deserialize, ProtoComponent, Component)]
 pub(crate) struct Warrior;
+
+#[derive(Clone, Serialize, Deserialize, ProtoComponent, Component)]
+pub(crate) struct Target;
+
+/// Common for both buff and debuff
+pub(crate) enum Buff {
+    Shock, Slow, Regen,
+}
