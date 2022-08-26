@@ -1,0 +1,9 @@
+---
+name: "Warrior"
+components:
+  - type: Enemy
+  - type: Warrior
+  - type: Stats
+    value:
+      health: 6
+      damage: 1

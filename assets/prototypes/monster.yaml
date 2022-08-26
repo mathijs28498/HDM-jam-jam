@@ -1,0 +1,8 @@
+---
+name: "Monster"
+components:
+  - type: Monster
+  - type: Stats
+    value:
+      health: 10
+      damage: 2
