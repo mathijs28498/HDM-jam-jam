@@ -3,6 +3,7 @@ use bevy::render::texture::DEFAULT_IMAGE_HANDLE;
 use crate::camera::components::CameraMoveBoxDirection;
 use crate::creation::components::Element;
 use crate::PIXEL;
+use crate::creation::components::PartPosition;
 
 /// Material of a `Sprite` with a texture and color
 #[derive(Debug, Clone)]
@@ -139,8 +140,13 @@ impl GameAssets {
             Element::Electric => &self.electric,
         }
     }
-    pub fn spawn_elem<T: Into<Element>>(&self, elem: T, pos: f32) -> SpriteBundle {
+    pub fn spawn_elem<T: Into<Element>>(&self, elem: T, part: &PartPosition) -> SpriteBundle {
         let sprite_material = self.elem_sprite_material(elem);
+        let pos = match part {
+            PartPosition::Head => 2.,
+            PartPosition::Body => 1.,
+            PartPosition::Legs => 0.,
+        };
         SpriteBundle {
             texture: sprite_material.texture.clone(),
             transform: Transform {

@@ -1,7 +1,7 @@
-#![allow(unused_mut)]
-#![allow(unused_imports)]
-#![allow(unused_variables)]
-#![allow(dead_code)]
+// #![allow(unused_mut)]
+// #![allow(unused_imports)]
+// #![allow(unused_variables)]
+// #![allow(dead_code)]
 
 mod camera;
 mod combat;

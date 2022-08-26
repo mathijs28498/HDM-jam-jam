@@ -13,8 +13,8 @@ pub(crate) enum SwapButtonPosition {
     Legs(bool),
 }
 
-#[derive(Component)]
-pub(crate) enum PartPosition {
+#[derive(Component,Debug,Hash, PartialEq, Eq)]
+pub enum PartPosition {
     Head,
     Body,
     Legs,
